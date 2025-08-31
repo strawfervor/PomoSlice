@@ -8,9 +8,6 @@ class LogScreen extends StatefulWidget{
 }
 
 class _LogScreenState extends State<LogScreen> {
-  int screenNumber = 0;
-
-
   @override
   Widget build(context) {
     return Text("Log Screen");
