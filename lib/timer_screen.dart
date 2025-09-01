@@ -1,50 +1,47 @@
 import 'package:flutter/material.dart';
 import 'package:pomoslice/components/tasks_autocomplete.dart';
+import 'package:pomoslice/components/square_button.dart';
+
 
 class TimerScreen extends StatefulWidget {
-  const TimerScreen({super.key});
+  const TimerScreen({super.key, this.timePomodoro, this.timeBreak, required this.toggleTimer, required this.currentTimerValue});
+
+  final int? timeBreak;
+  final int? timePomodoro;
+  final Function() toggleTimer;
+  final int currentTimerValue;
 
   @override
   State<TimerScreen> createState() => _TimerScreenState();
 }
 
 class _TimerScreenState extends State<TimerScreen> {
+  late Function() toggleTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    toggleTimer = widget.toggleTimer;
+  }
+
   @override
   Widget build(context) {
+    String minutes = (widget.currentTimerValue / 60).toInt().toString().padLeft(2, '0');
+    String seconds = (widget.currentTimerValue % 60).toString().padLeft(2, '0');
     return Column(
       children: [
         SizedBox(height: 30),
         Text(
-          "25:00",
+          "$minutes:$seconds",
           style: TextStyle(fontSize: 68, fontWeight: FontWeight.w400),
         ),
         SizedBox(height: 120),
-        OutlinedButton(
-          onPressed: () => {},
-          style: ElevatedButton.styleFrom(
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.zero, // Ustawia ostre krawędzie
-            ),
-            fixedSize: const Size(200, 16),
-            padding: EdgeInsets.zero,
-          ),
-          child: Text("Pomodoro (25 min)", style: TextStyle(fontSize: 16)),
-        ),
+        SquareButton(() {}, buttonText: "Pomodoro (25 min)"),
         SizedBox(height: 30),
         Align(alignment: Alignment.bottomLeft, child: Text("Task:")),
         SizedBox(width: 200, child: TasksAutocomplete()),
         SizedBox(height: 30),
-        OutlinedButton(
-          onPressed: () => {},
-          style: ElevatedButton.styleFrom(
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.zero, // Ustawia ostre krawędzie
-            ),
-            fixedSize: const Size(200, 16),
-            padding: EdgeInsets.zero,
-          ),
-          child: Text("Start", style: TextStyle(fontSize: 16)),
-        ),
+        SquareButton(toggleTimer, buttonText: "Start"),
       ],
     );
   }
