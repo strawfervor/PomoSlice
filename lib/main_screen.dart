@@ -16,8 +16,16 @@ class _MainScreenState extends State<MainScreen> {
   int screenNumber = 0;
   bool startedTimer = false;
   int currentTimerValue = 21;
+  String buttonStateText = "";
 
   var myStateChanger = StateChanger(25, 5, 15);
+
+  @override
+  void initState() {
+    currentTimerValue = myStateChanger.getCurrentStateTime();
+    buttonStateText = myStateChanger.getCurrentStateName();
+    super.initState();
+  }
 
   Timer? _timer;
 
@@ -45,9 +53,17 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  void toggleState(){
+    myStateChanger.toggleState();
+    setState(() {
+      buttonStateText = myStateChanger.getCurrentStateName();
+    });
+  }
+
   void timerEnd() {
     debugPrint("Timer end");
     currentTimerValue = 60;
+    myStateChanger.nextState();
   }
 
   Widget currentScreen = Text("Screen");
@@ -63,7 +79,10 @@ class _MainScreenState extends State<MainScreen> {
     currentScreen = (screenNumber == 0)
         ? TimerScreen(
             toggleTimer: toggleTimer,
+            toggleState: toggleState,
+            startedTimer: startedTimer,
             currentTimerValue: currentTimerValue,
+            buttonStateText: buttonStateText
           )
         : LogScreen();
     return Scaffold(

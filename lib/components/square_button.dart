@@ -12,7 +12,7 @@ class SquareButton extends StatelessWidget{
           onPressed: function,
           style: ElevatedButton.styleFrom(
             shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.zero, // Ustawia ostre krawędzie
+              borderRadius: BorderRadius.zero,
             ),
             fixedSize: const Size(200, 16),
             padding: EdgeInsets.zero,

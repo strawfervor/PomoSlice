@@ -10,7 +10,17 @@ class StateChanger {
   int longBreakTime = 15;
 
   void nextState() {
-    if (currentState <= 1) {
+    if (currentState < 1) {
+      currentState++;
+      setStateTime();
+    } else {
+      currentState = 0;
+      setStateTime();
+    }
+  }
+
+  void toggleState() {
+    if (currentState < 2) {
       currentState++;
       setStateTime();
     } else {
@@ -38,14 +48,22 @@ class StateChanger {
     return stateTime;
   }
 
+  String buttonTime(){
+    String minutes = (stateTime / 60).toInt().toString().padLeft(2, '0');
+    String seconds = (stateTime % 60).toString().padLeft(2, '0');
+
+    return "$minutes:$seconds";
+  }
+
   String getCurrentStateName() {
+    String btnTime = buttonTime();
     switch (currentState) {
       case 0:
-        return "Pomodoro ($stateTime mins)";
+        return "Pomodoro ($btnTime mins)";
       case 1:
-        return "Break ($stateTime mins)";
+        return "Break ($btnTime mins)";
       case 2:
-        return "Long break ($stateTime mins)";
+        return "Long break ($btnTime mins)";
       default:
         return "error";
     }
