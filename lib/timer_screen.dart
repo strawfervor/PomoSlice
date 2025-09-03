@@ -4,10 +4,9 @@ import 'package:pomoslice/components/square_button.dart';
 
 
 class TimerScreen extends StatefulWidget {
-  const TimerScreen({super.key, this.timePomodoro, this.timeBreak, required this.toggleTimer, required this.currentTimerValue});
+  const TimerScreen({super.key, required this.toggleTimer, required this.currentTimerValue});
 
-  final int? timeBreak;
-  final int? timePomodoro;
+
   final Function() toggleTimer;
   final int currentTimerValue;
 
