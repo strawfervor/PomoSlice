@@ -47,6 +47,7 @@ class _TimerScreenState extends State<TimerScreen> {
           "$minutes:$seconds",
           style: TextStyle(fontSize: 68, fontWeight: FontWeight.w400),
         ),
+        Text("Pomodoro"),
         SizedBox(height: 120),
         SquareButton(toggleState, buttonText: widget.buttonStateText),
         SizedBox(height: 30),

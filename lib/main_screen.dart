@@ -3,6 +3,8 @@ import 'package:pomoslice/log_screen.dart';
 import 'package:pomoslice/timer_screen.dart';
 import 'package:pomoslice/components/background_container.dart';
 import 'package:pomoslice/data/state_changer.dart';
+import 'package:vibration/vibration.dart';
+import 'package:vibration/vibration_presets.dart';
 import 'dart:async';
 
 class MainScreen extends StatefulWidget {
@@ -17,8 +19,9 @@ class _MainScreenState extends State<MainScreen> {
   bool startedTimer = false;
   int currentTimerValue = 21;
   String buttonStateText = "";
+  bool paused = false;
 
-  var myStateChanger = StateChanger(25, 5, 15);
+  var myStateChanger = StateChanger(3, 1, 2);
 
   @override
   void initState() {
@@ -36,9 +39,11 @@ class _MainScreenState extends State<MainScreen> {
         startedTimer = !startedTimer;
       });
       _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
+        if (!paused) {
         setState(() {
           currentTimerValue--;
         });
+        }
         debugPrint("Curerent time: $currentTimerValue");
         if (currentTimerValue <= 0) {
           toggleTimer();
@@ -58,12 +63,22 @@ class _MainScreenState extends State<MainScreen> {
     setState(() {
       buttonStateText = myStateChanger.getCurrentStateName();
     });
+    if (!startedTimer) {
+      setState(() {
+        currentTimerValue = myStateChanger.getCurrentStateTime();
+      });
+    }
   }
 
   void timerEnd() {
     debugPrint("Timer end");
     currentTimerValue = 60;
     myStateChanger.nextState();
+    setState(() {
+      buttonStateText = myStateChanger.getCurrentStateName();
+    });
+    currentTimerValue = myStateChanger.getCurrentStateTime();
+    Vibration.vibrate(preset: VibrationPreset.heartbeatVibration, duration: 1500);
   }
 
   Widget currentScreen = Text("Screen");
