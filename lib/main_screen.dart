@@ -5,6 +5,7 @@ import 'package:pomoslice/components/background_container.dart';
 import 'package:pomoslice/data/state_changer.dart';
 import 'package:vibration/vibration.dart';
 import 'package:vibration/vibration_presets.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'dart:async';
 
 class MainScreen extends StatefulWidget {
@@ -20,6 +21,7 @@ class _MainScreenState extends State<MainScreen> {
   int currentTimerValue = 21;
   String buttonStateText = "";
   bool paused = false;
+  final audioPlayer = AudioPlayer();
 
   var myStateChanger = StateChanger(3, 1, 2);
 
@@ -41,7 +43,7 @@ class _MainScreenState extends State<MainScreen> {
       _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
         if (!paused) {
         setState(() {
-          currentTimerValue--;
+          currentTimerValue-= 10;
         });
         }
         debugPrint("Curerent time: $currentTimerValue");
@@ -70,7 +72,11 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  void timerEnd() {
+  Future<void> playAlarm() async {
+    await audioPlayer.play(AssetSource('alarm.mp3'));
+  }
+
+  void timerEnd() async {
     debugPrint("Timer end");
     currentTimerValue = 60;
     myStateChanger.nextState();
@@ -78,7 +84,8 @@ class _MainScreenState extends State<MainScreen> {
       buttonStateText = myStateChanger.getCurrentStateName();
     });
     currentTimerValue = myStateChanger.getCurrentStateTime();
-    Vibration.vibrate(preset: VibrationPreset.heartbeatVibration, duration: 1500);
+    await audioPlayer.play(AssetSource('alarm.mp3'));
+    Vibration.vibrate(preset: VibrationPreset.gentleReminder, duration: 3000);
   }
 
   Widget currentScreen = Text("Screen");
