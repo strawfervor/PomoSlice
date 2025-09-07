@@ -25,12 +25,27 @@ class TimerScreen extends StatefulWidget {
 class _TimerScreenState extends State<TimerScreen> {
   late Function() toggleTimer;
   late Function() toggleState;
+  late String stateText;
 
   @override
   void initState() {
     super.initState();
     toggleTimer = widget.toggleTimer;
     toggleState = widget.toggleState;
+    stateText = widget.buttonStateText;
+  }
+
+  void startButtonPressed(){
+    toggleTimer();
+    stateText = widget.buttonStateText;
+  }
+
+  Widget toggleButton(){
+    if (widget.startedTimer) {
+      return SquareButton(() {}, buttonText: widget.buttonStateText);
+    } else {
+      return SquareButton(toggleState, buttonText: widget.buttonStateText);
+    }
   }
 
   @override
@@ -47,14 +62,14 @@ class _TimerScreenState extends State<TimerScreen> {
           "$minutes:$seconds",
           style: TextStyle(fontSize: 68, fontWeight: FontWeight.w400),
         ),
-        Text("Pomodoro"),
+        Text(stateText),
         SizedBox(height: 120),
-        SquareButton(toggleState, buttonText: widget.buttonStateText),
+        toggleButton(),
         SizedBox(height: 30),
         Align(alignment: Alignment.bottomLeft, child: Text("Task:")),
         SizedBox(width: 200, child: TasksAutocomplete()),
         SizedBox(height: 30),
-        SquareButton(toggleTimer, buttonText: widget.startedTimer ? "Stop" : "Start"),
+        SquareButton(startButtonPressed, buttonText: widget.startedTimer ? "Stop" : "Start"),
       ],
     );
   }

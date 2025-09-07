@@ -29,12 +29,26 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     currentTimerValue = myStateChanger.getCurrentStateTime();
     buttonStateText = myStateChanger.getCurrentStateName();
+
+    audioPlayer.setAudioContext(
+      AudioContext(
+        android: AudioContextAndroid(
+          isSpeakerphoneOn: true,
+          stayAwake: true,
+          contentType: AndroidContentType.sonification,
+          usageType: AndroidUsageType.alarm,
+          audioFocus: AndroidAudioFocus.gain,
+        ),
+      ),
+    );
+
     super.initState();
   }
 
   Timer? _timer;
 
   void toggleTimer() {
+    audioPlayer.stop();
     currentTimerValue = myStateChanger.getCurrentStateTime();
     if (!startedTimer) {
       setState(() {
@@ -42,9 +56,9 @@ class _MainScreenState extends State<MainScreen> {
       });
       _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
         if (!paused) {
-        setState(() {
-          currentTimerValue-= 10;
-        });
+          setState(() {
+            currentTimerValue -= 10;
+          });
         }
         debugPrint("Curerent time: $currentTimerValue");
         if (currentTimerValue <= 0) {
@@ -60,7 +74,7 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  void toggleState(){
+  void toggleState() {
     myStateChanger.toggleState();
     setState(() {
       buttonStateText = myStateChanger.getCurrentStateName();
@@ -85,7 +99,7 @@ class _MainScreenState extends State<MainScreen> {
     });
     currentTimerValue = myStateChanger.getCurrentStateTime();
     await audioPlayer.play(AssetSource('alarm.mp3'));
-    Vibration.vibrate(preset: VibrationPreset.gentleReminder, duration: 3000);
+    Vibration.vibrate(preset: VibrationPreset.countdownTimerAlert, duration: 3000);
   }
 
   Widget currentScreen = Text("Screen");
@@ -104,7 +118,7 @@ class _MainScreenState extends State<MainScreen> {
             toggleState: toggleState,
             startedTimer: startedTimer,
             currentTimerValue: currentTimerValue,
-            buttonStateText: buttonStateText
+            buttonStateText: buttonStateText,
           )
         : LogScreen();
     return Scaffold(
