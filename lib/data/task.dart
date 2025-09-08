@@ -1,4 +1,6 @@
-class Task {
+import 'package:hive_ce/hive.dart';
+
+class Task extends HiveObject {
   Task(this.taskName, this.taskTime);
 
   final String taskName;
@@ -7,9 +9,12 @@ class Task {
   DateTime lastDone = DateTime.now();
 
   void checkStreak() {
-    if (DateTime.now() == lastDone) {
-      streak += 1;
+    if (DateTime.now().difference(lastDone).inDays == 1) {
+      streak++;
+    } else if (DateTime.now().difference(lastDone).inDays > 1) {
+      streak = 1;
     }
+    lastDone = DateTime.now();
   }
 
   void updateTaskTime(int time) {

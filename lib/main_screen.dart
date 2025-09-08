@@ -22,7 +22,7 @@ class _MainScreenState extends State<MainScreen> {
   String buttonStateText = "";
   bool paused = false;
   final audioPlayer = AudioPlayer();
-
+  
   var myStateChanger = StateChanger(3, 1, 2);
 
   @override
