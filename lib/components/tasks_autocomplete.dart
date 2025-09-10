@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
 class TasksAutocomplete extends StatelessWidget {
-  const TasksAutocomplete({super.key});
+  const TasksAutocomplete({super.key, required this.tasksList});
 
-  //TODO: replace that with List created of user tasks in local storage
-  static const List<String> _kOptions = <String>['reading', 'programming', 'cleaning', 'running'];
+  final List<String> tasksList;
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +12,7 @@ class TasksAutocomplete extends StatelessWidget {
         if (textEditingValue.text == '') {
           return const Iterable<String>.empty();
         }
-        return _kOptions.where((String option) {
+        return tasksList.where((String option) {
           return option.contains(textEditingValue.text.toLowerCase());
         },
         );

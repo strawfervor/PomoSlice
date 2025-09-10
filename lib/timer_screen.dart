@@ -67,7 +67,7 @@ class _TimerScreenState extends State<TimerScreen> {
         toggleButton(),
         SizedBox(height: 30),
         Align(alignment: Alignment.bottomLeft, child: Text("Task:")),
-        SizedBox(width: 200, child: TasksAutocomplete()),
+        SizedBox(width: 200, child: TasksAutocomplete(tasksList: ['jogging', 'studing', 'cleaning'],)),
         SizedBox(height: 30),
         SquareButton(startButtonPressed, buttonText: widget.startedTimer ? "Stop" : "Start"),
       ],

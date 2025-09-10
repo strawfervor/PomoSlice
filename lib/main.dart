@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pomoslice/main_screen.dart';
+import 'dart:async';
 
-void main() {
+Future<void> main() async {
+
   runApp(const MyApp());
 }
 

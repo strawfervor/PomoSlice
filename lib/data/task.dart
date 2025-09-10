@@ -1,6 +1,4 @@
-import 'package:hive_ce/hive.dart';
-
-class Task extends HiveObject {
+class Task {
   Task(this.taskName, this.taskTime);
 
   final String taskName;

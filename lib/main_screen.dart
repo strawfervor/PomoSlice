@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pomoslice/data/task_manager.dart';
 import 'package:pomoslice/log_screen.dart';
 import 'package:pomoslice/timer_screen.dart';
 import 'package:pomoslice/components/background_container.dart';
@@ -22,6 +23,8 @@ class _MainScreenState extends State<MainScreen> {
   String buttonStateText = "";
   bool paused = false;
   final audioPlayer = AudioPlayer();
+  
+  TaskManager tasksManager = TaskManager();
   
   var myStateChanger = StateChanger(3, 1, 2);
 
