@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:pomoslice/data/task.dart';
+import 'package:pomoslice/data/task_manager.dart';
 
 class LogScreen extends StatefulWidget {
-  const LogScreen({super.key});
+  const LogScreen({super.key, required this.taskManager});
+
+  final TaskManager taskManager;
 
   @override
   State<LogScreen> createState() => _LogScreenState();
 }
 
 class _LogScreenState extends State<LogScreen> {
+  List<Task> tasks = [];
+
   Task t1 = Task('Testowanie', 30);
 
   void taskManipulator() {
@@ -18,12 +23,24 @@ class _LogScreenState extends State<LogScreen> {
   }
 
   @override
+  void initState() {
+    tasks = widget.taskManager.tasksList;
+    super.initState();
+  }
+
+  @override
   Widget build(context) {
     String taskT1 = t1.getDetails();
-    return Column(children: [
-      Text("Log Screen"),
-      ElevatedButton(onPressed: taskManipulator, child: Text("Increase time")),
-      Text('data of thing: $taskT1'),      
-    ]);
+    return Column(
+      children: [
+        Text("Log Screen"),
+        ListView(
+          shrinkWrap: true,
+          children: tasks
+              .map((item) => ListTile(leading: Text(item.streak.toString()),title: Text(item.getName()), subtitle: (Text(item.getTaskTime().toString())), ))
+              .toList(),
+        ),
+      ]
+    );
   }
 }

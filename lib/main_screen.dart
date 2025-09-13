@@ -133,7 +133,7 @@ class _MainScreenState extends State<MainScreen> {
             currentTimerValue: currentTimerValue,
             buttonStateText: buttonStateText,
           )
-        : LogScreen();
+        : LogScreen(taskManager: tasksManager,);
     return Scaffold(
       bottomNavigationBar: NavigationBar(
         selectedIndex: screenNumber,
