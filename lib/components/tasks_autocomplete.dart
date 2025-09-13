@@ -23,16 +23,16 @@ class TasksAutocomplete extends StatelessWidget {
         });
       },
       onSelected: (String selection) {
-        taskManager.getCurrentSelecedTask(selection);
+        taskManager.setCurrentSelecedTask(selection);
       },
       fieldViewBuilder:
           (context, textEditingController, focusNode, onFieldSubmitted) {
             return TextField(
               controller: textEditingController,
               focusNode: focusNode,
-              onChanged: (value) => taskManager.getCurrentSelecedTask(value),
+              onChanged: (value) => taskManager.setCurrentSelecedTask(value),
               onSubmitted: (value) {
-                taskManager.getCurrentSelecedTask(value);
+                taskManager.setCurrentSelecedTask(value);
                 onFieldSubmitted();
               },
             );

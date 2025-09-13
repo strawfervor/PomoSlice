@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pomoslice/data/task.dart';
 import 'package:pomoslice/data/task_manager.dart';
 import 'package:pomoslice/log_screen.dart';
 import 'package:pomoslice/timer_screen.dart';
@@ -26,7 +27,7 @@ class _MainScreenState extends State<MainScreen> {
   
   TaskManager tasksManager = TaskManager();
   
-  var myStateChanger = StateChanger(3, 1, 2);
+  var myStateChanger = StateChanger(1, 1, 1);
 
   @override
   void initState() {
@@ -96,12 +97,13 @@ class _MainScreenState extends State<MainScreen> {
   void timerEnd() async {
     debugPrint("Timer end");
     currentTimerValue = 60;
+    timeOutAddTask();
     myStateChanger.nextState();
     setState(() {
       buttonStateText = myStateChanger.getCurrentStateName();
     });
     currentTimerValue = myStateChanger.getCurrentStateTime();
-    await audioPlayer.play(AssetSource('alarm.mp3'));
+    //await audioPlayer.play(AssetSource('alarm.mp3'));
     Vibration.vibrate(preset: VibrationPreset.countdownTimerAlert, duration: 3000);
   }
 
@@ -111,6 +113,13 @@ class _MainScreenState extends State<MainScreen> {
   void dispose() {
     _timer?.cancel();
     super.dispose();
+  }
+
+  void timeOutAddTask(){
+    if (myStateChanger.currentState == 0) {
+      Task newTask = Task(tasksManager.currentSelectedTask, myStateChanger.pomodorTime);
+      tasksManager.updateTask(newTask);
+    }
   }
 
   @override

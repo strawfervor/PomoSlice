@@ -21,7 +21,7 @@ class TaskManager {
     }
   }
 
-  void getCurrentSelecedTask(String currentTask) {
+  void setCurrentSelecedTask(String currentTask) {
     currentSelectedTask = currentTask;
     debugPrint("Wpisany tekst: $currentTask");
   }
