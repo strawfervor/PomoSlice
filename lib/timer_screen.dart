@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pomoslice/components/tasks_autocomplete.dart';
 import 'package:pomoslice/components/square_button.dart';
+import 'package:pomoslice/data/task_manager.dart';
 
 class TimerScreen extends StatefulWidget {
   const TimerScreen({
@@ -10,9 +11,11 @@ class TimerScreen extends StatefulWidget {
     required this.currentTimerValue,
     required this.buttonStateText,
     required this.startedTimer,
+    required this.taskManager,
   });
 
   final Function() toggleTimer;
+  final TaskManager taskManager;
   final Function() toggleState;
   final bool startedTimer;
   final int currentTimerValue;
@@ -67,7 +70,7 @@ class _TimerScreenState extends State<TimerScreen> {
         toggleButton(),
         SizedBox(height: 30),
         Align(alignment: Alignment.bottomLeft, child: Text("Task:")),
-        SizedBox(width: 200, child: TasksAutocomplete(tasksList: ['jogging', 'studing', 'cleaning'],)),
+        SizedBox(width: 200, child: TasksAutocomplete(tasksList: ['jogging', 'studing', 'cleaning'], taskManager: widget.taskManager,)),
         SizedBox(height: 30),
         SquareButton(startButtonPressed, buttonText: widget.startedTimer ? "Stop" : "Start"),
       ],

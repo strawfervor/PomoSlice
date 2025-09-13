@@ -1,7 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:pomoslice/data/task.dart';
 
 class TaskManager {
   final List<Task> tasksList = [];
+  String currentSelectedTask = "";
 
   void addTask(Task task) {
     tasksList.add(task);
@@ -17,6 +19,11 @@ class TaskManager {
     } else {
       addTask(task);
     }
+  }
+
+  void getCurrentSelecedTask(String currentTask) {
+    currentSelectedTask = currentTask;
+    debugPrint("Wpisany tekst: $currentTask");
   }
 
   List<String> getTaskNames() {

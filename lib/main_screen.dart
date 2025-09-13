@@ -118,6 +118,7 @@ class _MainScreenState extends State<MainScreen> {
     currentScreen = (screenNumber == 0)
         ? TimerScreen(
             toggleTimer: toggleTimer,
+            taskManager: tasksManager,
             toggleState: toggleState,
             startedTimer: startedTimer,
             currentTimerValue: currentTimerValue,
