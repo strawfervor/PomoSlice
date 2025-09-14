@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pomoslice/data/task.dart';
 import 'package:pomoslice/data/task_manager.dart';
 import 'package:pomoslice/log_screen.dart';
+import 'package:pomoslice/setting_screen.dart';
 import 'package:pomoslice/timer_screen.dart';
 import 'package:pomoslice/components/background_container.dart';
 import 'package:pomoslice/data/state_changer.dart';
@@ -124,16 +125,21 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(context) {
-    currentScreen = (screenNumber == 0)
-        ? TimerScreen(
+    if (screenNumber == 0) {
+      currentScreen = TimerScreen(
             toggleTimer: toggleTimer,
             taskManager: tasksManager,
             toggleState: toggleState,
             startedTimer: startedTimer,
             currentTimerValue: currentTimerValue,
             buttonStateText: buttonStateText,
-          )
-        : LogScreen(taskManager: tasksManager,);
+      );
+    } else if (screenNumber == 1) {
+      currentScreen = LogScreen(taskManager: tasksManager,);
+    } else if (screenNumber == 2) {
+      currentScreen = SettingScreen(stateChanger: myStateChanger,);
+    }
+
     return Scaffold(
       bottomNavigationBar: NavigationBar(
         selectedIndex: screenNumber,
@@ -146,6 +152,7 @@ class _MainScreenState extends State<MainScreen> {
         destinations: [
           NavigationDestination(icon: Icon(Icons.access_time), label: 'Timer'),
           NavigationDestination(icon: Icon(Icons.notes), label: 'Log'),
+          NavigationDestination(icon: Icon(Icons.settings), label: 'Settings'),
         ],
       ),
       body: SafeArea(child: BackgroundContainer(child: currentScreen)),
