@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pomoslice/data/task.dart';
 
 class TaskManager {
+
   final List<Task> tasksList = [];
   String currentSelectedTask = "";
 

@@ -30,7 +30,6 @@ class _LogScreenState extends State<LogScreen> {
 
   @override
   Widget build(context) {
-    String taskT1 = t1.getDetails();
     return Column(
       children: [
         Text("Log Screen"),
