@@ -25,9 +25,9 @@ class _MainScreenState extends State<MainScreen> {
   String buttonStateText = "";
   bool paused = false;
   final audioPlayer = AudioPlayer();
-  
+
   TaskManager tasksManager = TaskManager();
-  
+
   var myStateChanger = StateChanger(1, 1, 1);
 
   @override
@@ -81,6 +81,10 @@ class _MainScreenState extends State<MainScreen> {
 
   void toggleState() {
     myStateChanger.toggleState();
+    refreshState();
+  }
+
+  void refreshState() {
     setState(() {
       buttonStateText = myStateChanger.getCurrentStateName();
     });
@@ -105,7 +109,10 @@ class _MainScreenState extends State<MainScreen> {
     });
     currentTimerValue = myStateChanger.getCurrentStateTime();
     await audioPlayer.play(AssetSource('alarm.mp3'));
-    Vibration.vibrate(preset: VibrationPreset.countdownTimerAlert, duration: 3000);
+    Vibration.vibrate(
+      preset: VibrationPreset.countdownTimerAlert,
+      duration: 3000,
+    );
   }
 
   Widget currentScreen = Text("Screen");
@@ -116,9 +123,12 @@ class _MainScreenState extends State<MainScreen> {
     super.dispose();
   }
 
-  void timeOutAddTask(){
+  void timeOutAddTask() {
     if (myStateChanger.currentState == 0) {
-      Task newTask = Task(tasksManager.currentSelectedTask, myStateChanger.pomodorTime);
+      Task newTask = Task(
+        tasksManager.currentSelectedTask,
+        myStateChanger.pomodorTime,
+      );
       tasksManager.updateTask(newTask);
     }
   }
@@ -127,17 +137,17 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(context) {
     if (screenNumber == 0) {
       currentScreen = TimerScreen(
-            toggleTimer: toggleTimer,
-            taskManager: tasksManager,
-            toggleState: toggleState,
-            startedTimer: startedTimer,
-            currentTimerValue: currentTimerValue,
-            buttonStateText: buttonStateText,
+        toggleTimer: toggleTimer,
+        taskManager: tasksManager,
+        toggleState: toggleState,
+        startedTimer: startedTimer,
+        currentTimerValue: currentTimerValue,
+        buttonStateText: buttonStateText,
       );
     } else if (screenNumber == 1) {
-      currentScreen = LogScreen(taskManager: tasksManager,);
+      currentScreen = LogScreen(taskManager: tasksManager);
     } else if (screenNumber == 2) {
-      currentScreen = SettingScreen(stateChanger: myStateChanger,);
+      currentScreen = SettingScreen(stateChanger: myStateChanger);
     }
 
     return Scaffold(

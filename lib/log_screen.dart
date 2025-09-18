@@ -33,8 +33,7 @@ class _LogScreenState extends State<LogScreen> {
     return Column(
       children: [
         Text("Log Screen"),
-        ListView(
-          shrinkWrap: true,
+        Column(
           children: tasks
               .map((item) => ListTile(leading: Text(item.streak.toString()),title: Text(item.getName()), subtitle: (Text(item.getTaskTime().toString())), ))
               .toList(),
