@@ -1,24 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:pomoslice/data/task.dart';
 
 class TaskManager {
+  final Box<Task> _tasksBox = Hive.box<Task>('tasksBox');
 
-  final List<Task> tasksList = [];
+  List<Task> get tasksList => _tasksBox.values.toList();
+
   String currentSelectedTask = "";
 
   void addTask(Task task) {
-    tasksList.add(task);
+    _tasksBox.add(task);
   }
 
-  void updateTask(Task task) {
-    Task? taskToUpdate = tasksList.where((t) => t.taskName == task.taskName).firstOrNull;
+  void deleteTask(Task task) {
+    task.delete();
+  }
+
+  void updateTask(Task incomingTask) {
+    Task? taskToUpdate = tasksList
+        .where((t) => t.taskName == incomingTask.taskName)
+        .firstOrNull;
 
     if (taskToUpdate != null) {
-      taskToUpdate.taskTime += task.taskTime;
+      taskToUpdate.updateTaskTime(incomingTask.taskTime);
       taskToUpdate.checkStreak();
-      taskToUpdate.lastDone = task.lastDone;
     } else {
-      addTask(task);
+      addTask(incomingTask);
     }
   }
 
@@ -28,10 +36,6 @@ class TaskManager {
   }
 
   List<String> getTaskNames() {
-    List<String> taskNames = [];
-    for (Task task in tasksList) {
-      taskNames.add(task.getName());
-    }
-    return taskNames;
+    return tasksList.map((task) => task.getName()).toList();
   }
 }

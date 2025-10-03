@@ -14,14 +14,6 @@ class LogScreen extends StatefulWidget {
 class _LogScreenState extends State<LogScreen> {
   List<Task> tasks = [];
 
-  Task t1 = Task('Testowanie', 30);
-
-  void taskManipulator() {
-    setState(() {
-      t1.updateTaskTime(10);
-    });
-  }
-
   @override
   void initState() {
     tasks = widget.taskManager.tasksList;

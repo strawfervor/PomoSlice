@@ -1,4 +1,6 @@
-class Task {
+import 'package:hive_ce_flutter/hive_flutter.dart';
+
+class Task extends HiveObject {
   Task(this.taskName, this.taskTime);
 
   final String taskName;
@@ -13,10 +15,12 @@ class Task {
       streak = 1;
     }
     lastDone = DateTime.now();
+    save();
   }
 
   void updateTaskTime(int time) {
     taskTime += time;
+    save();
   }
 
   int getTaskTime(){

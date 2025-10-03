@@ -81,10 +81,10 @@ class _MainScreenState extends State<MainScreen> {
 
   void toggleState() {
     myStateChanger.toggleState();
-    refreshState();
+    refreshStateChanger();
   }
 
-  void refreshState() {
+  void refreshStateChanger() {
     setState(() {
       buttonStateText = myStateChanger.getCurrentStateName();
     });
@@ -136,6 +136,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(context) {
     if (screenNumber == 0) {
+      refreshStateChanger();
       currentScreen = TimerScreen(
         toggleTimer: toggleTimer,
         taskManager: tasksManager,
