@@ -21,6 +21,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'PomoSlice',
       home: MainScreen(),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color.fromARGB(255, 83, 211, 243),
+          brightness: Brightness.dark,
+        ),
+      ),
     );
   }
 }

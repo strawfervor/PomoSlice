@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pomoslice/components/log_card.dart';
 import 'package:pomoslice/data/task.dart';
 import 'package:pomoslice/data/task_manager.dart';
 
@@ -25,11 +26,8 @@ class _LogScreenState extends State<LogScreen> {
     return Column(
       children: [
         Text("Log Screen"),
-        Column(
-          children: tasks
-              .map((item) => ListTile(leading: Text(item.streak.toString()),title: Text(item.getName()), subtitle: (Text(item.getTaskTime().toString())), ))
-              .toList(),
-        ),
+        Expanded(child: ListView.builder(itemCount: tasks.length, itemBuilder: (BuildContext context, int index) => 
+          LogCard(taskName: tasks[index].getName(), taskTime: tasks[index].getTaskTime(), streak: tasks[index].getStreak(), lastDone: tasks[index].getLastDone()))),
       ]
     );
   }

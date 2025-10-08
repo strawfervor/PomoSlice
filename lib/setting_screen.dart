@@ -57,7 +57,7 @@ class _SettingScreenState extends State<SettingScreen> {
     return Column(
       children: [
         SizedBox(height: 50,),
-        Text("Settings", style: TextStyle(fontSize: 40)),
+        Text("Settings", style: TextStyle(fontSize: 52)),
         SizedBox(height: 50,),
         TextField(
           keyboardType: TextInputType.number,
