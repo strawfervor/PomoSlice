@@ -21,6 +21,13 @@ class _LogScreenState extends State<LogScreen> {
     super.initState();
   }
 
+  void deleteTaskAndUpdateList(Task task) {
+    widget.taskManager.deleteTask(task);
+    setState(() {
+      tasks = widget.taskManager.tasksList;
+    });
+  }
+
   @override
   Widget build(context) {
     return SizedBox(width: 320, 
@@ -31,12 +38,12 @@ class _LogScreenState extends State<LogScreen> {
             child: ListView.builder(
               itemCount: tasks.length,
               itemBuilder: (BuildContext context, int index) => LogCard(
-                taskName: tasks[index].getName(),
-                taskTime: tasks[index].getTaskTime(),
-                streak: tasks[index].getStreak(),
-                lastDone: tasks[index].getLastDone(),
                 task: tasks[index],
-                taskManager: widget.taskManager,
+                lastDone: tasks[index].getLastDone(),
+                streak: tasks[index].streak,
+                taskName: tasks[index].taskName,
+                taskTime: tasks[index].taskTime,
+                onDelete: () => deleteTaskAndUpdateList(tasks[index]),
               ),
             ),
           ),

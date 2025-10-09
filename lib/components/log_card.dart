@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pomoslice/data/task.dart';
-import 'package:pomoslice/data/task_manager.dart';
 
 class LogCard extends StatelessWidget {
   const LogCard({
@@ -10,7 +9,7 @@ class LogCard extends StatelessWidget {
     required this.streak,
     required this.lastDone,
     required this.task,
-    required this.taskManager,
+    required this.onDelete,
   });
 
   final String taskName;
@@ -18,7 +17,7 @@ class LogCard extends StatelessWidget {
   final int streak;
   final String lastDone;
   final Task task;
-  final TaskManager taskManager;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +59,7 @@ class LogCard extends StatelessWidget {
                       minimumSize: WidgetStateProperty.all(Size.zero),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                    onPressed: () {},
+                    onPressed: onDelete,
                     icon: Icon(Icons.delete),
                   ),
                   SizedBox(width: 10,),
