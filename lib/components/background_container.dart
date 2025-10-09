@@ -11,7 +11,7 @@ class BackgroundContainer extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16, vertical: 32),
       alignment: Alignment.topCenter,
-      child: SizedBox(width: 220, child: child),
+      child: child,
     );
   }
 }

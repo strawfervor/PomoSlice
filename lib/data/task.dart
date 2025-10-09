@@ -35,11 +35,28 @@ class Task extends HiveObject {
     return taskName;
   }
 
-  String getLastDone(){
-    return lastDone.toString();
-  }
-
   String getDetails(){
     return '$taskName: $taskTime minuts, streak: $streak';
+  }
+
+  String getLastDoneDate() {
+    final day = lastDone.day.toString().padLeft(2, '0');
+    final month = lastDone.month.toString().padLeft(2, '0');
+    final year = lastDone.year.toString();
+    
+    return '$day.$month.$year';
+  }
+
+  String getLastDoneTime() {
+    final hour = lastDone.hour.toString().padLeft(2, '0');
+    final minute = lastDone.minute.toString().padLeft(2, '0');
+    
+    return '$hour:$minute';
+  }
+
+  String getLastDone(){
+    final day = getLastDoneDate();
+    final hour = getLastDoneTime();
+    return '$day @ $hour';
   }
 }

@@ -58,22 +58,24 @@ class _TimerScreenState extends State<TimerScreen> {
       '0',
     );
     String seconds = (widget.currentTimerValue % 60).toString().padLeft(2, '0');
-    return Column(
-      children: [
-        SizedBox(height: 30),
-        Text(
-          "$minutes:$seconds",
-          style: TextStyle(fontSize: 68, fontWeight: FontWeight.w400),
-        ),
-        Text(stateText),
-        SizedBox(height: 120),
-        toggleButton(),
-        SizedBox(height: 30),
-        Align(alignment: Alignment.bottomLeft, child: Text("Task:")),
-        SizedBox(width: 200, child: TasksAutocomplete(tasksList: widget.taskManager.getTaskNames(), taskManager: widget.taskManager,)),
-        SizedBox(height: 30),
-        SquareButton(startButtonPressed, buttonText: widget.startedTimer ? "Stop" : "Start"),
-      ],
+    return SizedBox(width: 220, 
+      child: Column(
+        children: [
+          SizedBox(height: 30),
+          Text(
+            "$minutes:$seconds",
+            style: TextStyle(fontSize: 68, fontWeight: FontWeight.w400),
+          ),
+          Text(stateText),
+          SizedBox(height: 120),
+          toggleButton(),
+          SizedBox(height: 30),
+          Align(alignment: Alignment.bottomLeft, child: Text("Task:")),
+          SizedBox(width: 200, child: TasksAutocomplete(tasksList: widget.taskManager.getTaskNames(), taskManager: widget.taskManager,)),
+          SizedBox(height: 30),
+          SquareButton(startButtonPressed, buttonText: widget.startedTimer ? "Stop" : "Start"),
+        ],
+      ),
     );
   }
 }

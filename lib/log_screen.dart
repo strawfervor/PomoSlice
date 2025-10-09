@@ -23,12 +23,25 @@ class _LogScreenState extends State<LogScreen> {
 
   @override
   Widget build(context) {
-    return Column(
-      children: [
-        Text("Log Screen"),
-        Expanded(child: ListView.builder(itemCount: tasks.length, itemBuilder: (BuildContext context, int index) => 
-          LogCard(taskName: tasks[index].getName(), taskTime: tasks[index].getTaskTime(), streak: tasks[index].getStreak(), lastDone: tasks[index].getLastDone()))),
-      ]
+    return SizedBox(width: 320, 
+      child: Column(
+        children: [
+          Text("Log Screen"),
+          Expanded(
+            child: ListView.builder(
+              itemCount: tasks.length,
+              itemBuilder: (BuildContext context, int index) => LogCard(
+                taskName: tasks[index].getName(),
+                taskTime: tasks[index].getTaskTime(),
+                streak: tasks[index].getStreak(),
+                lastDone: tasks[index].getLastDone(),
+                task: tasks[index],
+                taskManager: widget.taskManager,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
