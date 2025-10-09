@@ -151,22 +151,33 @@ class _MainScreenState extends State<MainScreen> {
       currentScreen = SettingScreen(stateChanger: myStateChanger);
     }
 
-    return Scaffold(
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: screenNumber,
-        onDestinationSelected: (int index) {
-          setState(() {
-            screenNumber = index;
-            debugPrint("Current screen index is: $index");
-          });
-        },
-        destinations: [
-          NavigationDestination(icon: Icon(Icons.access_time), label: 'Timer'),
-          NavigationDestination(icon: Icon(Icons.notes), label: 'Log'),
-          NavigationDestination(icon: Icon(Icons.settings), label: 'Settings'),
-        ],
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).requestFocus(FocusNode());
+      },
+      child: Scaffold(
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: screenNumber,
+          onDestinationSelected: (int index) {
+            setState(() {
+              screenNumber = index;
+              debugPrint("Current screen index is: $index");
+            });
+          },
+          destinations: [
+            NavigationDestination(
+              icon: Icon(Icons.access_time),
+              label: 'Timer',
+            ),
+            NavigationDestination(icon: Icon(Icons.notes), label: 'Activities'),
+            NavigationDestination(
+              icon: Icon(Icons.settings),
+              label: 'Settings',
+            ),
+          ],
+        ),
+        body: SafeArea(child: BackgroundContainer(child: currentScreen)),
       ),
-      body: SafeArea(child: BackgroundContainer(child: currentScreen)),
     );
   }
 }

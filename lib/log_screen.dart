@@ -33,7 +33,9 @@ class _LogScreenState extends State<LogScreen> {
     return SizedBox(width: 320, 
       child: Column(
         children: [
-          Text("Log Screen"),
+          SizedBox(height: 50,),
+          Text("Activities", style: TextStyle(fontSize: 52)),
+          SizedBox(height: 20,),
           Expanded(
             child: ListView.builder(
               itemCount: tasks.length,
