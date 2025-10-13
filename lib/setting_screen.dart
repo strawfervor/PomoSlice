@@ -54,41 +54,43 @@ class _SettingScreenState extends State<SettingScreen> {
 
   @override
   Widget build(context) {
-    return SizedBox(width: 220, 
-      child: Column(
-        children: [
-          SizedBox(height: 50,),
-          Text("Settings", style: TextStyle(fontSize: 52)),
-          SizedBox(height: 50,),
-          TextField(
-            keyboardType: TextInputType.number,
-            inputFormatters: [
-              FilteringTextInputFormatter.allow((RegExp(r'[0-9]'))),
-            ],
-            decoration: InputDecoration(label: Text("Pomodoro time (minutes):")),
-            onChanged: (value) => _pomodorTime = int.parse(value),
-          ),
-          SizedBox(height: 20,),
-          TextField(
-            keyboardType: TextInputType.number,
-            inputFormatters: [
-              FilteringTextInputFormatter.allow((RegExp(r'[0-9]'))),
-            ],
-            decoration: InputDecoration(label: Text("Break time (minutes):")),
-            onChanged: (value) => _breakTime = int.parse(value),
-          ),
-          SizedBox(height: 20,),
-          TextField(
-            keyboardType: TextInputType.number,
-            inputFormatters: [
-              FilteringTextInputFormatter.allow((RegExp(r'[0-9]'))),
-            ],
-            decoration: InputDecoration(label: Text("Long break time (minutes):")),
-            onChanged: (value) => _longBreakTime = int.parse(value),
-          ),
-          SizedBox(height: 50,),
-          SquareButton(_saveSettings, buttonText: "Save and Apply")
-        ],
+    return SingleChildScrollView(
+      child: Padding(padding: EdgeInsets.symmetric(horizontal: 80), 
+        child: Column(
+          children: [
+            SizedBox(height: 50,),
+            Text("Settings", style: TextStyle(fontSize: 52)),
+            SizedBox(height: 50,),
+            TextField(
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow((RegExp(r'[0-9]'))),
+              ],
+              decoration: InputDecoration(label: Text("Pomodoro time (minutes):")),
+              onChanged: (value) => _pomodorTime = int.parse(value),
+            ),
+            SizedBox(height: 20,),
+            TextField(
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow((RegExp(r'[0-9]'))),
+              ],
+              decoration: InputDecoration(label: Text("Break time (minutes):")),
+              onChanged: (value) => _breakTime = int.parse(value),
+            ),
+            SizedBox(height: 20,),
+            TextField(
+              keyboardType: TextInputType.number,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow((RegExp(r'[0-9]'))),
+              ],
+              decoration: InputDecoration(label: Text("Long break time (minutes):")),
+              onChanged: (value) => _longBreakTime = int.parse(value),
+            ),
+            SizedBox(height: 50,),
+            SquareButton(_saveSettings, buttonText: "Save and Apply")
+          ],
+        ),
       ),
     );
   }
