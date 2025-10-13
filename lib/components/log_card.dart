@@ -19,18 +19,30 @@ class LogCard extends StatelessWidget {
   final Task task;
   final VoidCallback onDelete;
 
+  void confirmDelete(context) {
+    showDialog(context: context, builder: (ctx) => AlertDialog(
+      title: Text('Delete activity'),
+      content: Text('Would you like to delete selected activity?'),
+      actions: [
+        TextButton(onPressed: () {onDelete(); Navigator.pop(ctx);}, child: Text('Yes')),
+        TextButton(onPressed: () {Navigator.pop(ctx);}, child: Text('No'))
+      ],
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(bottom: 10),
       child: Card(
-        color: Colors.purple[900],
+        //color: Colors.purple[900],
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 6),
           child: Column(
             children: [
               Center(child: Text(taskName, style: TextStyle(fontSize: 18))),
-              SizedBox(height: 6),
+              Divider(color: const Color.fromARGB(255, 165, 165, 165)),
+              SizedBox(height: 6,),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Row(
@@ -59,7 +71,7 @@ class LogCard extends StatelessWidget {
                       minimumSize: WidgetStateProperty.all(Size.zero),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                    onPressed: onDelete,
+                    onPressed: () {confirmDelete(context);},
                     icon: Icon(Icons.delete),
                   ),
                   SizedBox(width: 10,),
