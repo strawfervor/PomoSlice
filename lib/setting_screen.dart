@@ -55,7 +55,7 @@ class _SettingScreenState extends State<SettingScreen> {
   @override
   Widget build(context) {
     return SingleChildScrollView(
-      child: Padding(padding: EdgeInsets.symmetric(horizontal: 80), 
+      child: Padding(padding: EdgeInsets.symmetric(horizontal: 70), 
         child: Column(
           children: [
             SizedBox(height: 50,),
