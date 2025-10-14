@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pomoslice/data/task.dart';
 import 'package:pomoslice/data/task_manager.dart';
 import 'package:pomoslice/log_screen.dart';
+import 'package:pomoslice/main.dart';
 import 'package:pomoslice/setting_screen.dart';
 import 'package:pomoslice/timer_screen.dart';
 import 'package:pomoslice/components/background_container.dart';
@@ -12,7 +13,11 @@ import 'package:audioplayers/audioplayers.dart';
 import 'dart:async';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key});
+  const MainScreen({super.key, required this.pomodoroBreak, required this.pomodoroLongBreak, required this.pomodoroTime});
+
+  final int pomodoroTime;
+  final int pomodoroBreak;
+  final int pomodoroLongBreak;
 
   @override
   State<MainScreen> createState() => _MainScreenState();
@@ -34,6 +39,10 @@ class _MainScreenState extends State<MainScreen> {
   void initState() {
     currentTimerValue = myStateChanger.getCurrentStateTime();
     buttonStateText = myStateChanger.getCurrentStateName();
+    myStateChanger.pomodorTime = widget.pomodoroTime;
+    myStateChanger.breakTime = widget.pomodoroBreak;
+    myStateChanger.longBreakTime = widget.pomodoroLongBreak;
+    myStateChanger.setStateTime();
 
     audioPlayer.setAudioContext(
       AudioContext(
@@ -112,6 +121,11 @@ class _MainScreenState extends State<MainScreen> {
     Vibration.vibrate(
       preset: VibrationPreset.countdownTimerAlert,
       duration: 3000,
+    );
+    showSimpleNotification(
+      title: 'PomoSlice',
+      body: 'Your session has finished.',
+      payload: 'pomodoro_end',
     );
   }
 
