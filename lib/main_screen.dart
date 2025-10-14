@@ -71,7 +71,7 @@ class _MainScreenState extends State<MainScreen> {
       _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
         if (!paused) {
           setState(() {
-            currentTimerValue -= 10;
+            currentTimerValue -= 1;
           });
         }
         debugPrint("Curerent time: $currentTimerValue");
