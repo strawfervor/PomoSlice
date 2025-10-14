@@ -19,11 +19,12 @@ class TasksAutocomplete extends StatelessWidget {
           return const Iterable<String>.empty();
         }
         return tasksList.where((String option) {
-          return option.contains(textEditingValue.text.toLowerCase());
+          return option.toLowerCase().contains(textEditingValue.text.toLowerCase());
         });
       },
       onSelected: (String selection) {
         taskManager.setCurrentSelecedTask(selection);
+        FocusScope.of(context).unfocus();
       },
       fieldViewBuilder:
           (context, textEditingController, focusNode, onFieldSubmitted) {
@@ -39,4 +40,6 @@ class TasksAutocomplete extends StatelessWidget {
           },
     );
   }
+
+  
 }
