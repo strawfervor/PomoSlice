@@ -27,8 +27,8 @@ Future<void> main() async {
   //load settings
   final prefs = await SharedPreferences.getInstance();
   final int pomodorTime = prefs.getInt('pomodoroTime') ?? 25;
-  final int breakTime = prefs.getInt('breakTime') ?? 25;
-  final int longBreakTime = prefs.getInt('longBreakTime') ?? 25;
+  final int breakTime = prefs.getInt('breakTime') ?? 5;
+  final int longBreakTime = prefs.getInt('longBreakTime') ?? 15;
 
   runApp(MyApp(pomodoroBreak: breakTime, pomodoroLongBreak: longBreakTime, pomodoroTime: pomodorTime));
 }

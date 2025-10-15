@@ -30,8 +30,8 @@ class _SettingScreenState extends State<SettingScreen> {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
     _pomodorTime = prefs.getInt('pomodoroTime') ?? 25;
-    _breakTime = prefs.getInt('breakTime') ?? 25;
-    _longBreakTime = prefs.getInt('longBreakTime') ?? 25;
+    _breakTime = prefs.getInt('breakTime') ?? 5;
+    _longBreakTime = prefs.getInt('longBreakTime') ?? 15;
   }
 
   void _updateStateChanger() {
