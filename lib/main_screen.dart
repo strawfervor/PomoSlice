@@ -34,6 +34,7 @@ class _MainScreenState extends State<MainScreen> {
   int currentTimerValue = 0;
   String buttonStateText = "";
   final audioPlayer = AudioPlayer();
+  late TextEditingController taskController;
 
   TaskManager tasksManager = TaskManager();
   late StateChanger myStateChanger;
@@ -51,6 +52,7 @@ class _MainScreenState extends State<MainScreen> {
       widget.pomodoroBreak,
       widget.pomodoroLongBreak,
     );
+    taskController = TextEditingController();
 
     currentTimerValue = myStateChanger.getCurrentStateTime();
     buttonStateText = myStateChanger.getCurrentStateName();
@@ -170,6 +172,7 @@ class _MainScreenState extends State<MainScreen> {
   void dispose() {
     _timer?.cancel();
     audioPlayer.dispose();
+    taskController.dispose();
     super.dispose();
   }
 
@@ -194,6 +197,7 @@ class _MainScreenState extends State<MainScreen> {
         startedTimer: startedTimer,
         currentTimerValue: currentTimerValue,
         buttonStateText: buttonStateText,
+        taskController: taskController,
       );
     } else if (screenNumber == 1) {
       currentScreen = LogScreen(taskManager: tasksManager);

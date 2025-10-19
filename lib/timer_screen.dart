@@ -12,6 +12,7 @@ class TimerScreen extends StatefulWidget {
     required this.buttonStateText,
     required this.startedTimer,
     required this.taskManager,
+    required this.taskController,
   });
 
   final Function() toggleTimer;
@@ -20,6 +21,7 @@ class TimerScreen extends StatefulWidget {
   final bool startedTimer;
   final int currentTimerValue;
   final String buttonStateText;
+  final TextEditingController taskController;
 
   @override
   State<TimerScreen> createState() => _TimerScreenState();
@@ -38,12 +40,12 @@ class _TimerScreenState extends State<TimerScreen> {
     stateText = widget.buttonStateText;
   }
 
-  void startButtonPressed(){
+  void startButtonPressed() {
     toggleTimer();
     stateText = widget.buttonStateText;
   }
 
-  Widget toggleButton(){
+  Widget toggleButton() {
     if (widget.startedTimer) {
       return SquareButton(() {}, buttonText: widget.buttonStateText);
     } else {
@@ -60,9 +62,9 @@ class _TimerScreenState extends State<TimerScreen> {
     String seconds = (widget.currentTimerValue % 60).toString().padLeft(2, '0');
     return SingleChildScrollView(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 80), 
+        padding: EdgeInsets.symmetric(horizontal: 80),
         child: Column(
-          mainAxisSize: MainAxisSize.min, 
+          mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(height: 30),
             Text(
@@ -74,9 +76,19 @@ class _TimerScreenState extends State<TimerScreen> {
             toggleButton(),
             SizedBox(height: 30),
             Align(alignment: Alignment.bottomLeft, child: Text("Task:")),
-            SizedBox(width: 200, child: TasksAutocomplete(tasksList: widget.taskManager.getTaskNames(), taskManager: widget.taskManager,)),
+            SizedBox(
+              width: 200,
+              child: TasksAutocomplete(
+                tasksList: widget.taskManager.getTaskNames(),
+                taskManager: widget.taskManager,
+                controller: widget.taskController,
+              ),
+            ),
             SizedBox(height: 30),
-            SquareButton(startButtonPressed, buttonText: widget.startedTimer ? "Stop" : "Start"),
+            SquareButton(
+              startButtonPressed,
+              buttonText: widget.startedTimer ? "Stop" : "Start",
+            ),
           ],
         ),
       ),
