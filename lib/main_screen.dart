@@ -13,7 +13,12 @@ import 'package:audioplayers/audioplayers.dart';
 import 'dart:async';
 
 class MainScreen extends StatefulWidget {
-  const MainScreen({super.key, required this.pomodoroBreak, required this.pomodoroLongBreak, required this.pomodoroTime});
+  const MainScreen({
+    super.key,
+    required this.pomodoroBreak,
+    required this.pomodoroLongBreak,
+    required this.pomodoroTime,
+  });
 
   final int pomodoroTime;
   final int pomodoroBreak;
@@ -26,22 +31,29 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int screenNumber = 0;
   bool startedTimer = false;
-  int currentTimerValue = 21;
+  int currentTimerValue = 0;
   String buttonStateText = "";
-  bool paused = false;
   final audioPlayer = AudioPlayer();
 
   TaskManager tasksManager = TaskManager();
+  late StateChanger myStateChanger;
 
-  var myStateChanger = StateChanger(1, 1, 1);
+  Timer? _timer;
+  DateTime? _endTime;
+
+  final int pomodoroNotificationId = 0;
 
   @override
   void initState() {
+    super.initState();
+    myStateChanger = StateChanger(
+      widget.pomodoroTime,
+      widget.pomodoroBreak,
+      widget.pomodoroLongBreak,
+    );
+
     currentTimerValue = myStateChanger.getCurrentStateTime();
     buttonStateText = myStateChanger.getCurrentStateName();
-    myStateChanger.pomodorTime = widget.pomodoroTime;
-    myStateChanger.breakTime = widget.pomodoroBreak;
-    myStateChanger.longBreakTime = widget.pomodoroLongBreak;
     myStateChanger.setStateTime();
 
     audioPlayer.setAudioContext(
@@ -55,36 +67,62 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
     );
-
-    super.initState();
   }
-
-  Timer? _timer;
 
   void toggleTimer() {
     audioPlayer.stop();
-    currentTimerValue = myStateChanger.getCurrentStateTime();
+
     if (!startedTimer) {
       setState(() {
-        startedTimer = !startedTimer;
+        startedTimer = true;
+        currentTimerValue = myStateChanger.getCurrentStateTime();
       });
-      _timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
-        if (!paused) {
+
+      _endTime = DateTime.now().add(Duration(seconds: currentTimerValue));
+
+      final notificationBody = (myStateChanger.currentState == 0)
+          ? 'Your Pomodoro session is over! Time for a break.'
+          : 'Your break is over! Time to focus.';
+
+      scheduleNotification(
+        id: pomodoroNotificationId,
+        title: 'PomoSlice',
+        body: notificationBody,
+        durationInSeconds: currentTimerValue,
+        payload: 'pomodoro_end',
+      );
+
+      _timer = Timer.periodic(const Duration(milliseconds: 200), (Timer timer) {
+        if (_endTime == null) return;
+
+        final now = DateTime.now();
+        final remaining = _endTime!.difference(now);
+
+        if (remaining.isNegative) {
           setState(() {
-            currentTimerValue -= 20;
-            //speeded up for testing purposes
+            currentTimerValue = 0;
+            startedTimer = false;
           });
-        }
-        debugPrint("Curerent time: $currentTimerValue");
-        if (currentTimerValue <= 0) {
-          toggleTimer();
+          _timer?.cancel();
+          _timer = null;
+          _endTime = null;
           timerEnd();
+        } else {
+          setState(() {
+            currentTimerValue = (remaining.inMilliseconds / 1000).ceil();
+          });
         }
       });
     } else {
       _timer?.cancel();
+      _timer = null;
+      _endTime = null;
+
+      cancelNotification(pomodoroNotificationId);
+
       setState(() {
-        startedTimer = !startedTimer;
+        startedTimer = false;
+        currentTimerValue = myStateChanger.getCurrentStateTime();
       });
     }
   }
@@ -111,22 +149,18 @@ class _MainScreenState extends State<MainScreen> {
 
   void timerEnd() async {
     debugPrint("Timer end");
-    currentTimerValue = 60;
     timeOutAddTask();
     myStateChanger.nextState();
+
     setState(() {
       buttonStateText = myStateChanger.getCurrentStateName();
+      currentTimerValue = myStateChanger.getCurrentStateTime();
     });
-    currentTimerValue = myStateChanger.getCurrentStateTime();
+
     await audioPlayer.play(AssetSource('alarm.mp3'));
     Vibration.vibrate(
       preset: VibrationPreset.countdownTimerAlert,
       duration: 3000,
-    );
-    showSimpleNotification(
-      title: 'PomoSlice',
-      body: 'Your session has finished.',
-      payload: 'pomodoro_end',
     );
   }
 
@@ -135,6 +169,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void dispose() {
     _timer?.cancel();
+    audioPlayer.dispose();
     super.dispose();
   }
 

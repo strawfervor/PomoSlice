@@ -6,6 +6,9 @@ import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'dart:async';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
+import 'package:flutter_timezone/flutter_timezone.dart';
 
 @pragma('vm:entry-point')
 void notificationTapBackground(NotificationResponse notificationResponse) {
@@ -17,12 +20,18 @@ FlutterLocalNotificationsPlugin notificationsPlugin =
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
+  final TimezoneInfo timeZoneName = await FlutterTimezone.getLocalTimezone();
+
   //init hive
   await Hive.initFlutter();
   Hive.registerAdapters();
   await Hive.openBox<Task>('tasksBox');
   await initNotifications();
+
+  //init tz
+  tz.initializeTimeZones();
+  tz.setLocalLocation(tz.getLocation(timeZoneName.identifier));
 
   //load settings
   final prefs = await SharedPreferences.getInstance();
@@ -30,11 +39,22 @@ Future<void> main() async {
   final int breakTime = prefs.getInt('breakTime') ?? 5;
   final int longBreakTime = prefs.getInt('longBreakTime') ?? 15;
 
-  runApp(MyApp(pomodoroBreak: breakTime, pomodoroLongBreak: longBreakTime, pomodoroTime: pomodorTime));
+  runApp(
+    MyApp(
+      pomodoroBreak: breakTime,
+      pomodoroLongBreak: longBreakTime,
+      pomodoroTime: pomodorTime,
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key, required this.pomodoroBreak, required this.pomodoroLongBreak, required this.pomodoroTime});
+  const MyApp({
+    super.key,
+    required this.pomodoroBreak,
+    required this.pomodoroLongBreak,
+    required this.pomodoroTime,
+  });
   final int pomodoroTime;
   final int pomodoroBreak;
   final int pomodoroLongBreak;
@@ -43,7 +63,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'PomoSlice',
-      home: MainScreen(pomodoroBreak: pomodoroBreak, pomodoroLongBreak: pomodoroLongBreak, pomodoroTime: pomodoroTime,),
+      home: MainScreen(
+        pomodoroBreak: pomodoroBreak,
+        pomodoroLongBreak: pomodoroLongBreak,
+        pomodoroTime: pomodoroTime,
+      ),
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color.fromARGB(255, 83, 211, 243),
@@ -54,8 +78,8 @@ class MyApp extends StatelessWidget {
   }
 }
 
-//notifications:
 
+//notifications:
 Future<void> initNotifications() async {
   const androidSettings = AndroidInitializationSettings('appicon');
 
@@ -75,20 +99,27 @@ Future<void> initNotifications() async {
             AndroidFlutterLocalNotificationsPlugin
           >();
   await androidPlugin?.requestNotificationsPermission();
+  await androidPlugin?.requestExactAlarmsPermission();
 }
 
-
-Future<void> showSimpleNotification(
-    {required String title, required String body, required String payload}) async {
+Future<void> showSimpleNotification({
+  required String title,
+  required String body,
+  required String payload,
+}) async {
   const AndroidNotificationDetails androidNotificationDetails =
-      AndroidNotificationDetails('pomoslice_channel_id', 'PomoSlice Sessions',
-          channelDescription: 'Notifications for Pomodoro sessions and breaks',
-          importance: Importance.max,
-          priority: Priority.high,
-          ticker: 'ticker');
+      AndroidNotificationDetails(
+    'pomoslice_channel_id',
+    'PomoSlice Sessions',
+    channelDescription: 'Notifications for Pomodoro sessions and breaks',
+    importance: Importance.max,
+    priority: Priority.high,
+    ticker: 'ticker',
+  );
 
-  const NotificationDetails notificationDetails =
-      NotificationDetails(android: androidNotificationDetails);
+  const NotificationDetails notificationDetails = NotificationDetails(
+    android: androidNotificationDetails,
+  );
 
   await notificationsPlugin.show(
     0,
@@ -97,4 +128,36 @@ Future<void> showSimpleNotification(
     notificationDetails,
     payload: payload,
   );
+}
+
+Future<void> scheduleNotification({
+  required String title,
+  required String body,
+  required int durationInSeconds,
+  String payload = 'default_payload',
+  required int id,
+}) async {
+  await notificationsPlugin.zonedSchedule(
+    id,
+    title,
+    body,
+    tz.TZDateTime.now(tz.local).add(Duration(seconds: durationInSeconds)),
+    const NotificationDetails(
+      android: AndroidNotificationDetails(
+        'pomoslice_channel_id',
+        'PomoSlice Sessions',
+        channelDescription: 'Notifications for Pomodoro sessions and breaks',
+        importance: Importance.max,
+        priority: Priority.high,
+        ticker: 'ticker',
+      ),
+    ),
+    payload: payload,
+    androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+  );
+}
+
+//cancel any notifications
+Future<void> cancelNotification(int id) async {
+  await notificationsPlugin.cancel(id);
 }
