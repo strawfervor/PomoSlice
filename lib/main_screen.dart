@@ -159,7 +159,7 @@ class _MainScreenState extends State<MainScreen> {
       currentTimerValue = myStateChanger.getCurrentStateTime();
     });
 
-    await audioPlayer.play(AssetSource('alarm.mp3'));
+    //await audioPlayer.play(AssetSource('alarm.mp3'));
     Vibration.vibrate(
       preset: VibrationPreset.countdownTimerAlert,
       duration: 3000,
