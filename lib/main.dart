@@ -100,6 +100,18 @@ Future<void> initNotifications() async {
           >();
   await androidPlugin?.requestNotificationsPermission();
   await androidPlugin?.requestExactAlarmsPermission();
+
+  const AndroidNotificationChannel channel = AndroidNotificationChannel(
+    'pomoslice_channel_id',
+    'PomoSlice Sessions',
+    description: 'Notifications for Pomodoro sessions and breaks',
+    importance: Importance.max,
+    playSound: true,
+    sound: RawResourceAndroidNotificationSound('alarm'),
+    enableVibration: true,
+  );
+
+  await androidPlugin?.createNotificationChannel(channel);
 }
 
 Future<void> showSimpleNotification({
