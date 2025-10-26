@@ -82,7 +82,7 @@ class MyApp extends StatelessWidget {
 
 //notifications:
 Future<void> initNotifications() async {
-  const androidSettings = AndroidInitializationSettings('appicon');
+  const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
 
   const InitializationSettings initializationSettings = InitializationSettings(
     android: androidSettings,
