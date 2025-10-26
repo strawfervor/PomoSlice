@@ -1,4 +1,4 @@
-package com.example.pomoslice
+package com.strawfervor.pomoslice
 
 import io.flutter.embedding.android.FlutterActivity
 
