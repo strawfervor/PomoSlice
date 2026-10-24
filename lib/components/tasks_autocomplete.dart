@@ -27,12 +27,15 @@ class TasksAutocomplete extends StatelessWidget {
         });
       },
       onSelected: (String selection) {
-        taskManager.setCurrentSelecedTask(selection);
+        taskManager.setCurrentSelectedTask(selection);
         controller.text = selection;
         FocusScope.of(context).unfocus();
       },
       fieldViewBuilder:
           (context, textEditingController, focusNode, onFieldSubmitted) {
+            // Autocomplete owns an internal controller. The external controller
+            // only keeps the text alive when this widget is recreated after a
+            // tab switch.
             if (controller.text.isNotEmpty &&
                 textEditingController.text.isEmpty) {
               textEditingController.text = controller.text;
@@ -42,12 +45,12 @@ class TasksAutocomplete extends StatelessWidget {
               controller: textEditingController,
               focusNode: focusNode,
               onChanged: (value) {
-                taskManager.setCurrentSelecedTask(value);
-                controller.text = value; // DODAJ TĘ LINIĘ
+                taskManager.setCurrentSelectedTask(value);
+                controller.text = value;
               },
               onSubmitted: (value) {
-                taskManager.setCurrentSelecedTask(value);
-                controller.text = value; // DODAJ TĘ LINIĘ
+                taskManager.setCurrentSelectedTask(value);
+                controller.text = value;
                 onFieldSubmitted();
               },
             );

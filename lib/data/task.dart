@@ -5,16 +5,30 @@ class Task extends HiveObject {
 
   final String taskName;
   int taskTime;
-  int streak = 0;
+  int streak = 1;
   DateTime lastDone = DateTime.now();
 
   void checkStreak() {
-    if (DateTime.now().difference(lastDone).inDays == 1) {
-      streak++;
-    } else if (DateTime.now().difference(lastDone).inDays > 1) {
+    final DateTime now = DateTime.now();
+    final DateTime today = DateTime(now.year, now.month, now.day);
+    final DateTime lastDoneDay = DateTime(
+      lastDone.year,
+      lastDone.month,
+      lastDone.day,
+    );
+    final int dayDifference = today.difference(lastDoneDay).inDays;
+
+    if (dayDifference == 0) {
+      if (streak == 0) {
+        streak = 1;
+      }
+    } else if (dayDifference == 1) {
+      streak = streak == 0 ? 1 : streak + 1;
+    } else {
       streak = 1;
     }
-    lastDone = DateTime.now();
+
+    lastDone = now;
     save();
   }
 
@@ -23,38 +37,38 @@ class Task extends HiveObject {
     save();
   }
 
-  int getTaskTime(){
+  int getTaskTime() {
     return taskTime;
   }
 
-  int getStreak(){
+  int getStreak() {
     return streak;
   }
 
-  String getName(){
+  String getName() {
     return taskName;
   }
 
-  String getDetails(){
-    return '$taskName: $taskTime minuts, streak: $streak';
+  String getDetails() {
+    return '$taskName: $taskTime minutes, streak: $streak';
   }
 
   String getLastDoneDate() {
     final day = lastDone.day.toString().padLeft(2, '0');
     final month = lastDone.month.toString().padLeft(2, '0');
     final year = lastDone.year.toString();
-    
+
     return '$day.$month.$year';
   }
 
   String getLastDoneTime() {
     final hour = lastDone.hour.toString().padLeft(2, '0');
     final minute = lastDone.minute.toString().padLeft(2, '0');
-    
+
     return '$hour:$minute';
   }
 
-  String getLastDone(){
+  String getLastDone() {
     final day = getLastDoneDate();
     final hour = getLastDoneTime();
     return '$day @ $hour';

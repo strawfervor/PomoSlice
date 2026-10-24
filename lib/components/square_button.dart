@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
 
-class SquareButton extends StatelessWidget{
-  const SquareButton(this.function, {super.key, required this.buttonText});
+class SquareButton extends StatelessWidget {
+  const SquareButton({
+    super.key,
+    required this.onPressed,
+    required this.buttonText,
+  });
 
-  final Function() function;
+  final VoidCallback? onPressed;
   final String buttonText;
 
   @override
   Widget build(BuildContext context) {
     return OutlinedButton(
-          onPressed: function,
-          style: ElevatedButton.styleFrom(
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.zero,
-            ),
-            fixedSize: const Size(200, 16),
-            padding: EdgeInsets.zero,
-          ),
-          child: Text(buttonText, style: TextStyle(fontSize: 16)),
-        );
+      onPressed: onPressed,
+      style: OutlinedButton.styleFrom(
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+        fixedSize: const Size(200, 48),
+        padding: EdgeInsets.zero,
+      ),
+      child: Text(buttonText, style: TextStyle(fontSize: 16)),
+    );
   }
 }

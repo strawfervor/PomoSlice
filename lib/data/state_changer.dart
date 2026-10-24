@@ -1,22 +1,25 @@
 class StateChanger {
-  StateChanger(this.pomodorTime, this.breakTime, this.longBreakTime) {
+  StateChanger(this.pomodoroTime, this.breakTime, this.longBreakTime) {
     setStateTime();
   }
 
+  static const int pomodorosBeforeLongBreak = 4;
+
   int currentState = 0;
   int stateTime = 60 * 25;
-  int pomodorTime = 25;
+  int pomodoroTime = 25;
   int breakTime = 5;
   int longBreakTime = 15;
+  int completedPomodoros = 0;
 
   void nextState() {
-    if (currentState < 1) {
-      currentState++;
-      setStateTime();
+    if (currentState == 0) {
+      completedPomodoros++;
+      currentState = completedPomodoros % pomodorosBeforeLongBreak == 0 ? 2 : 1;
     } else {
       currentState = 0;
-      setStateTime();
     }
+    setStateTime();
   }
 
   void toggleState() {
@@ -29,7 +32,7 @@ class StateChanger {
     }
   }
 
-  void setNowPomodoro(){
+  void setNowPomodoro() {
     currentState = 0;
     setStateTime();
   }
@@ -39,7 +42,7 @@ class StateChanger {
     setStateTime();
   }
 
-  void setNowLongBreak(){
+  void setNowLongBreak() {
     currentState = 2;
     setStateTime();
   }
@@ -48,7 +51,7 @@ class StateChanger {
     return stateTime;
   }
 
-  String buttonTime(){
+  String buttonTime() {
     String minutes = (stateTime / 60).toInt().toString().padLeft(2, '0');
     String seconds = (stateTime % 60).toString().padLeft(2, '0');
 
@@ -59,20 +62,20 @@ class StateChanger {
     String btnTime = buttonTime();
     switch (currentState) {
       case 0:
-        return "Pomodoro ($btnTime mins)";
+        return "Pomodoro ($btnTime)";
       case 1:
-        return "Break ($btnTime mins)";
+        return "Break ($btnTime)";
       case 2:
-        return "Long break ($btnTime mins)";
+        return "Long break ($btnTime)";
       default:
-        return "error";
+        return "Error";
     }
   }
 
   void setStateTime() {
     switch (currentState) {
       case 0:
-        stateTime = pomodorTime * 60;
+        stateTime = pomodoroTime * 60;
         break;
       case 1:
         stateTime = breakTime * 60;
@@ -81,7 +84,7 @@ class StateChanger {
         stateTime = longBreakTime * 60;
         break;
       default:
-        stateTime = 25;
+        stateTime = 25 * 60;
         break;
     }
   }

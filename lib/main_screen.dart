@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:pomoslice/data/task.dart';
 import 'package:pomoslice/data/task_manager.dart';
 import 'package:pomoslice/log_screen.dart';
-import 'package:pomoslice/main.dart';
+import 'package:pomoslice/services/notifications.dart';
 import 'package:pomoslice/setting_screen.dart';
 import 'package:pomoslice/timer_screen.dart';
 import 'package:pomoslice/components/background_container.dart';
 import 'package:pomoslice/data/state_changer.dart';
 import 'package:vibration/vibration.dart';
-import 'package:vibration/vibration_presets.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'dart:async';
 
@@ -41,6 +40,15 @@ class _MainScreenState extends State<MainScreen> {
 
   Timer? _timer;
   DateTime? _endTime;
+  int _sessionMinutes = 0;
+  int _timerGeneration = 0;
+
+  // The in-app alarm is used when a notification cannot be scheduled (for
+  // example when the user denied notification permissions).
+  bool _useInAppAlarm = true;
+  bool _notificationWarningShown = false;
+
+  StreamSubscription<void>? _notificationTapSubscription;
 
   final int pomodoroNotificationId = 0;
 
@@ -56,7 +64,15 @@ class _MainScreenState extends State<MainScreen> {
 
     currentTimerValue = myStateChanger.getCurrentStateTime();
     buttonStateText = myStateChanger.getCurrentStateName();
-    myStateChanger.setStateTime();
+
+    _notificationTapSubscription = notificationTaps.listen((_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        screenNumber = 0;
+      });
+    });
 
     audioPlayer.setAudioContext(
       AudioContext(
@@ -72,27 +88,25 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void toggleTimer() {
-    audioPlayer.stop();
+    unawaited(audioPlayer.stop());
 
     if (!startedTimer) {
+      final int durationSeconds = myStateChanger.getCurrentStateTime();
+      final int generation = ++_timerGeneration;
+
       setState(() {
         startedTimer = true;
-        currentTimerValue = myStateChanger.getCurrentStateTime();
+        currentTimerValue = durationSeconds;
+        _sessionMinutes = (durationSeconds / 60).ceil();
       });
 
-      _endTime = DateTime.now().add(Duration(seconds: currentTimerValue));
+      _endTime = DateTime.now().add(Duration(seconds: durationSeconds));
+      _useInAppAlarm = true;
 
-      final notificationBody = (myStateChanger.currentState == 0)
-          ? 'Your Pomodoro session is over! Time for a break.'
-          : 'Your break is over! Time to focus.';
-
-      scheduleNotification(
-        id: pomodoroNotificationId,
-        title: 'PomoSlice',
-        body: notificationBody,
-        durationInSeconds: currentTimerValue,
-        payload: 'pomodoro_end',
-      );
+      // Remove a stale notification from a previous session before scheduling
+      // the new one.
+      unawaited(cancelNotification(pomodoroNotificationId));
+      unawaited(_scheduleTimerNotification(generation));
 
       _timer = Timer.periodic(const Duration(milliseconds: 200), (Timer timer) {
         if (_endTime == null) return;
@@ -116,11 +130,12 @@ class _MainScreenState extends State<MainScreen> {
         }
       });
     } else {
+      _timerGeneration++;
       _timer?.cancel();
       _timer = null;
       _endTime = null;
 
-      cancelNotification(pomodoroNotificationId);
+      unawaited(cancelNotification(pomodoroNotificationId));
 
       setState(() {
         startedTimer = false;
@@ -129,27 +144,83 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  void toggleState() {
-    myStateChanger.toggleState();
-    refreshStateChanger();
-  }
+  Future<void> _scheduleTimerNotification(int generation) async {
+    final DateTime? endTime = _endTime;
+    if (endTime == null) {
+      return;
+    }
 
-  void refreshStateChanger() {
+    final String notificationBody = (myStateChanger.currentState == 0)
+        ? 'Your Pomodoro session is over! Time for a break.'
+        : 'Your break is over! Time to focus.';
+
+    final bool hasPermission = await ensureNotificationPermissions();
+    if (!mounted ||
+        generation != _timerGeneration ||
+        !startedTimer ||
+        _endTime == null) {
+      return;
+    }
+
+    bool scheduled = false;
+    if (hasPermission) {
+      scheduled = await scheduleNotification(
+        id: pomodoroNotificationId,
+        title: 'PomoSlice',
+        body: notificationBody,
+        scheduledDate: endTime,
+        payload: 'pomodoro_end',
+      );
+    }
+
+    if (!mounted || generation != _timerGeneration || !startedTimer) {
+      return;
+    }
+
     setState(() {
-      buttonStateText = myStateChanger.getCurrentStateName();
+      _useInAppAlarm = !scheduled;
     });
-    if (!startedTimer) {
-      setState(() {
-        currentTimerValue = myStateChanger.getCurrentStateTime();
-      });
+
+    if (!scheduled && notificationsSupported && !_notificationWarningShown) {
+      _notificationWarningShown = true;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Notifications are unavailable, so the alarm will play inside the app.',
+          ),
+        ),
+      );
     }
   }
 
-  Future<void> playAlarm() async {
-    await audioPlayer.play(AssetSource('alarm.mp3'));
+  void toggleState() {
+    myStateChanger.toggleState();
+    setState(() {
+      buttonStateText = myStateChanger.getCurrentStateName();
+      if (!startedTimer) {
+        currentTimerValue = myStateChanger.getCurrentStateTime();
+      }
+    });
   }
 
-  void timerEnd() async {
+  void syncTimerWithState() {
+    setState(() {
+      buttonStateText = myStateChanger.getCurrentStateName();
+      if (!startedTimer) {
+        currentTimerValue = myStateChanger.getCurrentStateTime();
+      }
+    });
+  }
+
+  Future<void> playAlarm() async {
+    try {
+      await audioPlayer.play(AssetSource('alarm.mp3'));
+    } catch (error) {
+      debugPrint('Could not play the alarm: $error');
+    }
+  }
+
+  void timerEnd() {
     debugPrint("Timer end");
     timeOutAddTask();
     myStateChanger.nextState();
@@ -159,17 +230,15 @@ class _MainScreenState extends State<MainScreen> {
       currentTimerValue = myStateChanger.getCurrentStateTime();
     });
 
-    //await audioPlayer.play(AssetSource('alarm.mp3'));
-    Vibration.vibrate(
-      preset: VibrationPreset.countdownTimerAlert,
-      duration: 3000,
-    );
+    if (_useInAppAlarm) {
+      unawaited(playAlarm());
+      unawaited(Vibration.vibrate(duration: 3000));
+    }
   }
-
-  Widget currentScreen = Text("Screen");
 
   @override
   void dispose() {
+    _notificationTapSubscription?.cancel();
     _timer?.cancel();
     audioPlayer.dispose();
     taskController.dispose();
@@ -177,19 +246,25 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void timeOutAddTask() {
-    if (myStateChanger.currentState == 0) {
-      Task newTask = Task(
-        tasksManager.currentSelectedTask,
-        myStateChanger.pomodorTime,
-      );
-      tasksManager.updateTask(newTask);
+    if (myStateChanger.currentState != 0) {
+      return;
     }
+
+    final String taskName = tasksManager.currentSelectedTask.trim();
+    if (taskName.isEmpty) {
+      return;
+    }
+
+    final int minutes = _sessionMinutes > 0
+        ? _sessionMinutes
+        : myStateChanger.pomodoroTime;
+    tasksManager.updateTask(Task(taskName, minutes));
   }
 
   @override
   Widget build(context) {
+    final Widget currentScreen;
     if (screenNumber == 0) {
-      refreshStateChanger();
       currentScreen = TimerScreen(
         toggleTimer: toggleTimer,
         taskManager: tasksManager,
@@ -201,13 +276,16 @@ class _MainScreenState extends State<MainScreen> {
       );
     } else if (screenNumber == 1) {
       currentScreen = LogScreen(taskManager: tasksManager);
-    } else if (screenNumber == 2) {
-      currentScreen = SettingScreen(stateChanger: myStateChanger);
+    } else {
+      currentScreen = SettingScreen(
+        stateChanger: myStateChanger,
+        onSettingsApplied: syncTimerWithState,
+      );
     }
 
     return GestureDetector(
       onTap: () {
-        FocusScope.of(context).requestFocus(FocusNode());
+        FocusScope.of(context).unfocus();
       },
       child: Scaffold(
         bottomNavigationBar: NavigationBar(
@@ -215,10 +293,13 @@ class _MainScreenState extends State<MainScreen> {
           onDestinationSelected: (int index) {
             setState(() {
               screenNumber = index;
-              debugPrint("Current screen index is: $index");
+              if (index == 0 && !startedTimer) {
+                buttonStateText = myStateChanger.getCurrentStateName();
+                currentTimerValue = myStateChanger.getCurrentStateTime();
+              }
             });
           },
-          destinations: [
+          destinations: const [
             NavigationDestination(
               icon: Icon(Icons.access_time),
               label: 'Timer',

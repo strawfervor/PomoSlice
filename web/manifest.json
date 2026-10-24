@@ -1,11 +1,11 @@
 {
-    "name": "pomoslice",
-    "short_name": "pomoslice",
+    "name": "PomoSlice",
+    "short_name": "PomoSlice",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#hexcode",
-    "theme_color": "#hexcode",
-    "description": "A new Flutter project.",
+    "background_color": "#121212",
+    "theme_color": "#53D3F3",
+    "description": "A Pomodoro timer and activity tracker.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

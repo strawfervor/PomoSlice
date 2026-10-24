@@ -3,7 +3,7 @@ import 'package:pomoslice/components/tasks_autocomplete.dart';
 import 'package:pomoslice/components/square_button.dart';
 import 'package:pomoslice/data/task_manager.dart';
 
-class TimerScreen extends StatefulWidget {
+class TimerScreen extends StatelessWidget {
   const TimerScreen({
     super.key,
     required this.toggleTimer,
@@ -15,51 +15,28 @@ class TimerScreen extends StatefulWidget {
     required this.taskController,
   });
 
-  final Function() toggleTimer;
+  final VoidCallback toggleTimer;
+  final VoidCallback toggleState;
   final TaskManager taskManager;
-  final Function() toggleState;
   final bool startedTimer;
   final int currentTimerValue;
   final String buttonStateText;
   final TextEditingController taskController;
 
-  @override
-  State<TimerScreen> createState() => _TimerScreenState();
-}
-
-class _TimerScreenState extends State<TimerScreen> {
-  late Function() toggleTimer;
-  late Function() toggleState;
-  late String stateText;
-
-  @override
-  void initState() {
-    super.initState();
-    toggleTimer = widget.toggleTimer;
-    toggleState = widget.toggleState;
-    stateText = widget.buttonStateText;
-  }
-
-  void startButtonPressed() {
-    toggleTimer();
-    stateText = widget.buttonStateText;
-  }
-
   Widget toggleButton() {
-    if (widget.startedTimer) {
-      return SquareButton(() {}, buttonText: widget.buttonStateText);
-    } else {
-      return SquareButton(toggleState, buttonText: widget.buttonStateText);
-    }
+    return SquareButton(
+      onPressed: startedTimer ? null : toggleState,
+      buttonText: buttonStateText,
+    );
   }
 
   @override
   Widget build(context) {
-    String minutes = (widget.currentTimerValue / 60).toInt().toString().padLeft(
+    String minutes = (currentTimerValue / 60).toInt().toString().padLeft(
       2,
       '0',
     );
-    String seconds = (widget.currentTimerValue % 60).toString().padLeft(2, '0');
+    String seconds = (currentTimerValue % 60).toString().padLeft(2, '0');
     return SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 80),
@@ -71,7 +48,7 @@ class _TimerScreenState extends State<TimerScreen> {
               "$minutes:$seconds",
               style: TextStyle(fontSize: 68, fontWeight: FontWeight.w400),
             ),
-            Text(stateText),
+            Text(buttonStateText),
             SizedBox(height: 120),
             toggleButton(),
             SizedBox(height: 30),
@@ -79,15 +56,15 @@ class _TimerScreenState extends State<TimerScreen> {
             SizedBox(
               width: 200,
               child: TasksAutocomplete(
-                tasksList: widget.taskManager.getTaskNames(),
-                taskManager: widget.taskManager,
-                controller: widget.taskController,
+                tasksList: taskManager.getTaskNames(),
+                taskManager: taskManager,
+                controller: taskController,
               ),
             ),
             SizedBox(height: 30),
             SquareButton(
-              startButtonPressed,
-              buttonText: widget.startedTimer ? "Stop" : "Start",
+              onPressed: toggleTimer,
+              buttonText: startedTimer ? "Stop" : "Start",
             ),
           ],
         ),

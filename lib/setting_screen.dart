@@ -3,12 +3,23 @@ import 'package:flutter/services.dart';
 import 'package:pomoslice/components/square_button.dart';
 import 'package:pomoslice/data/state_changer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:async';
+
+int _validMinutes(int? value, int fallback) {
+  if (value == null || value < 1) {
+    return fallback;
+  }
+  return value;
+}
 
 class SettingScreen extends StatefulWidget {
-  const SettingScreen({super.key, required this.stateChanger});
+  const SettingScreen({
+    super.key,
+    required this.stateChanger,
+    this.onSettingsApplied,
+  });
 
   final StateChanger stateChanger;
+  final VoidCallback? onSettingsApplied;
 
   @override
   State<SettingScreen> createState() => _SettingScreenState();
@@ -16,22 +27,24 @@ class SettingScreen extends StatefulWidget {
 
 class _SettingScreenState extends State<SettingScreen> {
   late StateChanger myStateChanger;
-  late int _pomodorTime;
-  late int _breakTime;
-  late int _longBreakTime;
+  int _pomodoroTime = 25;
+  int _breakTime = 5;
+  int _longBreakTime = 15;
 
-  late TextEditingController _pomodoroController;
-  late TextEditingController _breakController;
-  late TextEditingController _longBreakController;
+  late final TextEditingController _pomodoroController;
+  late final TextEditingController _breakController;
+  late final TextEditingController _longBreakController;
 
   @override
   void initState() {
     super.initState();
-    _loadSettings();
     myStateChanger = widget.stateChanger;
-    _pomodoroController = TextEditingController();
-    _breakController = TextEditingController();
-    _longBreakController = TextEditingController();
+    _pomodoroController = TextEditingController(text: _pomodoroTime.toString());
+    _breakController = TextEditingController(text: _breakTime.toString());
+    _longBreakController = TextEditingController(
+      text: _longBreakTime.toString(),
+    );
+    _loadSettings();
   }
 
   @override
@@ -43,35 +56,75 @@ class _SettingScreenState extends State<SettingScreen> {
   }
 
   Future<void> _loadSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    _pomodorTime = prefs.getInt('pomodoroTime') ?? 25;
-    _breakTime = prefs.getInt('breakTime') ?? 5;
-    _longBreakTime = prefs.getInt('longBreakTime') ?? 15;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final int pomodoro = _validMinutes(prefs.getInt('pomodoroTime'), 25);
+      final int breakTime = _validMinutes(prefs.getInt('breakTime'), 5);
+      final int longBreak = _validMinutes(prefs.getInt('longBreakTime'), 15);
 
-    //setting values in controllers
-    _pomodoroController.text = _pomodorTime.toString();
-    _breakController.text = _breakTime.toString();
-    _longBreakController.text = _longBreakTime.toString();
+      if (!mounted) {
+        return;
+      }
+
+      _pomodoroTime = pomodoro;
+      _breakTime = breakTime;
+      _longBreakTime = longBreak;
+
+      _pomodoroController.text = pomodoro.toString();
+      _breakController.text = breakTime.toString();
+      _longBreakController.text = longBreak.toString();
+    } catch (error) {
+      debugPrint('Could not load settings: $error');
+    }
+  }
+
+  int? _parseMinutes(String value) {
+    final int? parsed = int.tryParse(value);
+    if (parsed == null || parsed < 1) {
+      return null;
+    }
+    return parsed;
   }
 
   void _updateStateChanger() {
     myStateChanger.breakTime = _breakTime;
     myStateChanger.longBreakTime = _longBreakTime;
-    setState(() {
-      myStateChanger.pomodorTime = _pomodorTime;
-    });
+    myStateChanger.pomodoroTime = _pomodoroTime;
     myStateChanger.setStateTime();
   }
 
   Future<void> _saveSettings() async {
+    final int? pomodoro = _parseMinutes(_pomodoroController.text);
+    final int? breakTime = _parseMinutes(_breakController.text);
+    final int? longBreak = _parseMinutes(_longBreakController.text);
+
+    if (pomodoro == null || breakTime == null || longBreak == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Enter whole numbers greater than 0 for all fields.'),
+        ),
+      );
+      return;
+    }
+
+    _pomodoroTime = pomodoro;
+    _breakTime = breakTime;
+    _longBreakTime = longBreak;
+
     final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('pomodoroTime', _pomodoroTime);
+    await prefs.setInt('breakTime', _breakTime);
+    await prefs.setInt('longBreakTime', _longBreakTime);
+
     _updateStateChanger();
-    debugPrint(
-      "current data: p: $_pomodorTime, b: $_breakTime, lb: $_longBreakTime",
-    );
-    prefs.setInt('pomodoroTime', _pomodorTime);
-    prefs.setInt('breakTime', _breakTime);
-    prefs.setInt('longBreakTime', _longBreakTime);
+    widget.onSettingsApplied?.call();
+
+    if (!mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Settings saved.')));
   }
 
   @override
@@ -87,38 +140,50 @@ class _SettingScreenState extends State<SettingScreen> {
             TextField(
               controller: _pomodoroController,
               keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.allow((RegExp(r'[0-9]'))),
-              ],
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: InputDecoration(
                 label: Text("Pomodoro time (minutes):"),
               ),
-              onChanged: (value) => _pomodorTime = int.parse(value),
+              onChanged: (value) {
+                final int? parsed = _parseMinutes(value);
+                if (parsed != null) {
+                  _pomodoroTime = parsed;
+                }
+              },
             ),
             SizedBox(height: 20),
             TextField(
               controller: _breakController,
               keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.allow((RegExp(r'[0-9]'))),
-              ],
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: InputDecoration(label: Text("Break time (minutes):")),
-              onChanged: (value) => _breakTime = int.parse(value),
+              onChanged: (value) {
+                final int? parsed = _parseMinutes(value);
+                if (parsed != null) {
+                  _breakTime = parsed;
+                }
+              },
             ),
             SizedBox(height: 20),
             TextField(
               controller: _longBreakController,
               keyboardType: TextInputType.number,
-              inputFormatters: [
-                FilteringTextInputFormatter.allow((RegExp(r'[0-9]'))),
-              ],
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: InputDecoration(
                 label: Text("Long break time (minutes):"),
               ),
-              onChanged: (value) => _longBreakTime = int.parse(value),
+              onChanged: (value) {
+                final int? parsed = _parseMinutes(value);
+                if (parsed != null) {
+                  _longBreakTime = parsed;
+                }
+              },
             ),
             SizedBox(height: 50),
-            SquareButton(_saveSettings, buttonText: "Save and Apply"),
+            SquareButton(
+              onPressed: _saveSettings,
+              buttonText: "Save and Apply",
+            ),
           ],
         ),
       ),

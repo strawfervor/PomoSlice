@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pomoslice/data/task.dart';
 
 class LogCard extends StatelessWidget {
   const LogCard({
@@ -8,7 +7,6 @@ class LogCard extends StatelessWidget {
     required this.taskTime,
     required this.streak,
     required this.lastDone,
-    required this.task,
     required this.onDelete,
   });
 
@@ -16,18 +14,31 @@ class LogCard extends StatelessWidget {
   final int taskTime;
   final int streak;
   final String lastDone;
-  final Task task;
   final VoidCallback onDelete;
 
   void confirmDelete(context) {
-    showDialog(context: context, builder: (ctx) => AlertDialog(
-      title: Text('Delete activity'),
-      content: Text('Would you like to delete selected activity?'),
-      actions: [
-        TextButton(onPressed: () {onDelete(); Navigator.pop(ctx);}, child: Text('Yes')),
-        TextButton(onPressed: () {Navigator.pop(ctx);}, child: Text('No'))
-      ],
-    ));
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Delete activity'),
+        content: Text('Would you like to delete selected activity?'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              onDelete();
+              Navigator.pop(ctx);
+            },
+            child: Text('Yes'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+            },
+            child: Text('No'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -42,7 +53,7 @@ class LogCard extends StatelessWidget {
             children: [
               Center(child: Text(taskName, style: TextStyle(fontSize: 18))),
               Divider(color: const Color.fromARGB(255, 165, 165, 165)),
-              SizedBox(height: 6,),
+              SizedBox(height: 6),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Row(
@@ -71,10 +82,12 @@ class LogCard extends StatelessWidget {
                       minimumSize: WidgetStateProperty.all(Size.zero),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                    onPressed: () {confirmDelete(context);},
+                    onPressed: () {
+                      confirmDelete(context);
+                    },
                     icon: Icon(Icons.delete),
                   ),
-                  SizedBox(width: 10,),
+                  SizedBox(width: 10),
                 ],
               ),
             ],
