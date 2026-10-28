@@ -44,9 +44,14 @@ class TimerScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(height: 30),
-            Text(
-              "$minutes:$seconds",
-              style: TextStyle(fontSize: 68, fontWeight: FontWeight.w400),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                "$minutes:$seconds",
+                maxLines: 1,
+                softWrap: false,
+                style: TextStyle(fontSize: 68, fontWeight: FontWeight.w400),
+              ),
             ),
             Text(buttonStateText),
             SizedBox(height: 120),
