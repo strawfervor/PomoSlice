@@ -3,6 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:pomoslice/components/square_button.dart';
 import 'package:pomoslice/data/state_changer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+const String _supportUrl = 'https://pomoslice.strawfervor.com';
 
 int _validMinutes(int? value, int fallback) {
   if (value == null || value < 1) {
@@ -127,6 +130,30 @@ class _SettingScreenState extends State<SettingScreen> {
     ).showSnackBar(const SnackBar(content: Text('Settings saved.')));
   }
 
+  Future<void> _openSupportLink() async {
+    final Uri uri = Uri.parse(_supportUrl);
+    final bool launched = await launchUrl(
+      uri,
+      mode: LaunchMode.externalApplication,
+    );
+
+    if (launched || !mounted) {
+      return;
+    }
+
+    await Clipboard.setData(ClipboardData(text: _supportUrl));
+
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Could not open the link, so it was copied.'),
+      ),
+    );
+  }
+
   @override
   Widget build(context) {
     return SingleChildScrollView(
@@ -184,6 +211,41 @@ class _SettingScreenState extends State<SettingScreen> {
               onPressed: _saveSettings,
               buttonText: "Save and Apply",
             ),
+            SizedBox(height: 100),
+            Text(
+              "Support PomoSlice",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.8),
+              ),
+            ),
+            SizedBox(height: 6),
+            Text(
+              "Enjoying the app? Help keep it free, open-source and ad-free.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.6),
+              ),
+            ),
+            SizedBox(height: 6),
+            InkWell(
+              onTap: _openSupportLink,
+              child: Text(
+                _supportUrl,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(context).colorScheme.primary,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
           ],
         ),
       ),
